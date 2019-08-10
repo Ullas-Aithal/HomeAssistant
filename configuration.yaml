@@ -1,0 +1,37 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+# Text to speech
+tts:
+  - platform: google_translate
+sensor:
+ - platform: mqtt
+   state_topic: 'monitor/raspberrypi/op7'
+   name: 'op7'
+   value_template: '{{value_json}}'
+sensor:
+ - platform: mqtt
+   state_topic: 'monitor/raspberrypi/watch'
+   name: 'watch'
+   value_template: '{{value_json}}'
+mqtt:
+  broker: 127.0.0.1
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  port: 1883
+#mqtt:
+ # broker: 127.0.0.1
+ # discovery: true
+#sensor:
+ # - platform: mqtt_room
+  #  device_id: '98:09:cf:5c:d4:d8'
+   # state_topic: 'room_presence'
+    #value_template: '{{value_json}}'
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml

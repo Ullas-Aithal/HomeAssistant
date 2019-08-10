@@ -1,0 +1,19 @@
+- id: '1565389183984'
+  alias: New Automation
+  trigger: []
+  condition: []
+  action:
+  - alias: ''
+    data:
+      message: meesage
+    service: persistent_notification.create
+- id: '1565459494927'
+  alias: Huwaei watch presence
+  trigger:
+  - platform: mqtt
+    topic: monitor/raspberrypi/watch/rssi
+  condition: []
+  action:
+  - data_template:
+      message: '{{trigger.payload}}'
+    service: persistent_notification.create
