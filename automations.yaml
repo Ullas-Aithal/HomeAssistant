@@ -1,19 +1,160 @@
-- id: '1565389183984'
-  alias: New Automation
-  trigger: []
+#Turns on light 20 minutes before sunset and only if I'm home and send a message via Discord
+- id: '1565483224890'
+  alias: Light on sunset
+  trigger:
+  - event: sunset
+    offset: -00:20:00
+    platform: sun
+  condition:
+  - condition: state
+    entity_id: device_tracker.c0_ee_fb_25_96_9f
+    state: home
+  action:
+  - data:
+      entity_id: light.room_light
+    service: light.turn_on
+  - data:
+      message: '{{  now().hour }}:{{ now().minute}}:{{now().second}} Lights on'
+      target:
+      - '617157053470867476'
+    service: notify.discord
+
+#Reduce the volume of Google Home when the AC is off between 6AM and 10PM
+- id: '1565483460783'
+  alias: Room speaker 40% AC On
+  trigger:
+  - entity_id: switch.bedroom_a_c
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition:
+  - after: 06:00
+    before: '22:00'
+    condition: time
+  action:
+  - data:
+      entity_id: media_player.room_speaker
+      volume_level: 0.4
+    service: media_player.volume_set
+
+#Increase the volume of Google Home when the AC is on between 6AM and 10PM
+- id: '1565483561556'
+  alias: Room speaker 60% AC on
+  trigger:
+  - entity_id: switch.living_room_ac
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - after: 06:00
+    before: '22:00'
+    condition: time
+  action:
+  - data:
+      entity_id: media_player.room_speaker
+      volume_level: 0.6
+    service: media_player.volume_set
+
+#Turn off lights when I'm away and send a message via Discord
+- id: '1565485013479'
+  alias: Lights off when away
+  trigger:
+  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+    from: home
+    platform: state
+    to: not_home
   condition: []
   action:
-  - alias: ''
-    data:
-      message: meesage
-    service: persistent_notification.create
-- id: '1565459494927'
-  alias: Huwaei watch presence
+  - data:
+      entity_id: light.room_light
+    service: light.turn_off
+  - data:
+      message: '{{  now().hour }}:{{ now().minute}}:{{now().second}} Lights off'
+      target:
+      - '617024318626594831'
+    service: notify.discord
+
+#Not using these anymore
+- id: '1565547129250'
+  alias: watch dnd
   trigger:
   - platform: mqtt
-    topic: monitor/raspberrypi/watch/rssi
+    topic: watch
   condition: []
   action:
   - data_template:
-      message: '{{trigger.payload}}'
+      message: '{{ trigger.payload }}'
     service: persistent_notification.create
+- id: '1566963612395'
+  alias: Rpi4 overheat warning
+  trigger:
+  - platform: mqtt
+    topic: rpi4Temp/
+  condition:
+  - condition: template
+    value_template: '{{float(trigger.payload) > 75.0}}'
+  action:
+  - data:
+      message: Temperature reached 75. Do something!
+      target:
+      - '617024318626594831'
+    service: notify.discord
+
+#Turn on lights if I reach home after sunset and send message via Discord
+- id: '1567128567269'
+  alias: Lights on when home and sunset
+  trigger:
+  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+    from: not_home
+    platform: state
+    to: home
+  condition:
+  - after: sunset
+    condition: sun
+  action:
+  - data:
+      entity_id: light.room_light
+    service: light.turn_on
+  - data:
+      message: '{{  now().hour }}:{{ now().minute}}:{{now().second}} Lights on'
+      target:
+      - '617157127303069697'
+    service: notify.discord
+
+#Turn on my monitor when I'm home or if it's 6AM in the morning
+- id: '1569030746865'
+  alias: Turn on display
+  trigger:
+  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+    from: not_home
+    platform: state
+    to: home
+  - at: 06:00
+    platform: time
+  condition: []
+  action:
+  - service: shell_command.turn_on_display
+
+#Turn off my monitor when I'm away from home or if it's 10:30PM in the night
+- id: '1569370954697'
+  alias: Turn off display
+  trigger:
+  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+    from: home
+    platform: state
+    to: not_home
+  - at: '22:30'
+    platform: time
+  condition: []
+  action:
+  - service: shell_command.turn_off_display
+
+#Auto renew SSL cert 29 days before expiry
+- id: '1569730184552'
+  alias: Auto renew SSL
+  trigger:
+    platform: numeric_state
+    entity_id: sensor.ssl_cert_expiry
+    below: 29
+  action:
+    service: shell_command.renew_ssl
