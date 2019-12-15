@@ -2,36 +2,102 @@
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
-# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
-# http:
-#   base_url: example.duckdns.org:8123
+#SSL Configuration to access HA webpage over HTTTPS
+http:
+  ssl_certificate: !secret sslCert
+  ssl_key: !secret sslKey
+  base_url: !secret sslUrl
 
 # Text to speech
 tts:
   - platform: google_translate
-sensor:
- - platform: mqtt
-   state_topic: 'monitor/raspberrypi/op7'
-   name: 'op7'
-   value_template: '{{value_json}}'
-sensor:
- - platform: mqtt
-   state_topic: 'monitor/raspberrypi/watch'
-   name: 'watch'
-   value_template: '{{value_json}}'
+
 mqtt:
   broker: 127.0.0.1
   username: !secret mqtt_username
   password: !secret mqtt_password
   port: 1883
-#mqtt:
- # broker: 127.0.0.1
- # discovery: true
-#sensor:
- # - platform: mqtt_room
-  #  device_id: '98:09:cf:5c:d4:d8'
-   # state_topic: 'room_presence'
-    #value_template: '{{value_json}}'
+
+#To keep track of my phone when it connects/disconnects from my home wifi
+device_tracker:
+  - platform: nmap_tracker
+    hosts: 192.168.86.101
+
+lovelace:
+  mode: yaml
+
+#Smart lights and switches. Hardcoding ipaddresses reduced the occurences of being unavailable
+tplink:
+  discovery: false
+  light:
+    - host: 192.168.86.70
+  switch:
+    - host: 192.168.86.86 
+    - host: 192.168.86.30
+
+#Pi-hole ip address
+pi_hole:
+    host: 192.168.86.40
+    ssl: false
+
+sensor:
+  - platform: cpuspeed
+  
+  #Pi hole stats as sensors
+  - platform: template
+    sensors:
+      pihole_queries_today:
+        value_template: '{{ states.sensor.pihole.attributes.queries_today }}'
+        friendly_name: 'Queries Today'
+      pihole_percentage_today:
+        value_template: '{{ states.sensor.pihole.attributes.percentage_today }}'
+        friendly_name: 'Percentage Today'
+      pihole_domains_blocked:
+        value_template: '{{ states.sensor.pihole.attributes.domains_blocked }}'
+        friendly_name: 'Domains Blocked'
+  
+  #sensor to keep track of days remaining for SSL cert expiry
+  - platform: command_line
+    name: SSL cert expiry
+    unit_of_measurement: days
+    scan_interval: 10800
+    command: !secret sslPath
+
+#Bash scripts that controls display on/off for a monitor connected to this rpi. The monitor is running Chromium in kiosk mode showing my
+#reminders and tasks from Any.do (which needs occasional page refresh)
+script:
+  display_off:
+    alias: displayOff
+    sequence: 
+      service: shell_command.turn_off_display
+  display_on:
+    alias: displayOn
+    sequence:
+      service: shell_command.turn_on_display
+  refresh_page:
+    alias: refreshPage
+    sequence:
+      service: shell_command.refresh_page
+
+#Shell commands that are actions for the ablve scripts
+shell_command:
+  turn_off_display: '/home/homeassistant/.homeassistant/turnOffDisplay.sh'
+  turn_on_display: '/home/homeassistant/.homeassistant/turnOnDisplay.sh'
+  refresh_page: '/home/homeassistant/.homeassistant/refreshPage.sh'
+  renew_ssl: '~/certbot/certbot-auto renew --quiet --no-self-upgrade --standalone --preferred-challenges http-01'
+
+#Platform to control lights and switches
+tuya:
+  username: !secret tuyaEmail
+  password: !secret tuyaPassword
+  country_code: 1
+  platform: smart_life
+
+#Discord notifications to keep track of certain automations
+notify:
+  - platform: discord
+    name: discord
+    token: !secret discordToken
+
 group: !include groups.yaml
 automation: !include automations.yaml
-script: !include scripts.yaml
