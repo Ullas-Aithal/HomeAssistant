@@ -37,7 +37,7 @@ tplink:
 
 #Pi-hole ip address
 pi_hole:
-    host: 192.168.86.40
+    host: 192.168.86.28
     ssl: false
 
 sensor:
@@ -55,7 +55,15 @@ sensor:
       pihole_domains_blocked:
         value_template: '{{ states.sensor.pihole.attributes.domains_blocked }}'
         friendly_name: 'Domains Blocked'
-  
+  - platform: systemmonitor
+    resources:
+      - type: processor_use
+  - platform: trakt
+    id: !secret trakt_id
+    secret: !secret trakt_secret
+    username: ullasaithalk
+    days: 10
+      
   #sensor to keep track of days remaining for SSL cert expiry
   - platform: command_line
     name: SSL cert expiry
@@ -101,3 +109,5 @@ notify:
 
 group: !include groups.yaml
 automation: !include automations.yaml
+frontend:
+  themes: !include themes.yaml

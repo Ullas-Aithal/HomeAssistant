@@ -1,11 +1,18 @@
-\resources:
-  - type: module
-    url: >-
-      https://cdn.jsdelivr.net/gh/custom-cards/spotify-card@1.8/dist/spotify-card.umd.js
+resources:
+  - url: /local/custom-lovelace/compact-custom-header/compact-custom-header.js?v=0.0.1
+    type: module
+  - url: /local/card-mod.js
+    type: module
+  - url: /local/mini-media-player-bundle.js?v=1.4.2
+    type: module
+  - url: /local/custom-lovelace/upcoming-media-card/upcoming-media-card.js?v=0.1.1
+    type: js
 title: Home
 views:
-  - badges:
-     - sun.sun
+  - title: Everything
+    id: kiosk_mode
+#    badges:
+#     - sun.sun
     cards:
       - entities:
           - switch.living_room_ac
@@ -20,6 +27,8 @@ views:
         type: entities
       - entity: weather.home
         type: weather-forecast
+      - entity: media_player.bedroom_tv
+        type: media-control
       - entity: media_player.living_room_tv
         type: media-control
       - entity: media_player.room_speaker
@@ -39,6 +48,9 @@ views:
       - entity: sensor.cpu_speed
         name: Cpu Speed
         type: sensor
+      - entity: sensor.processor_use
+        name: CPU Usage
+        type: sensor
       - entity: sensor.pi_hole_dns_queries_today
         graph: line
         name: Total Queries
@@ -57,6 +69,166 @@ views:
           - entity: script.display_on
             name: Turn On Display
           - entity: script.refresh_page
-            name: Refresh page        
+            name: Refresh page
+          - entity: script.dashclock_adb_power        
+            name: Dashclock power button
     path: default_view
-    title: Home
+  - title: Bedroom
+    panel: true
+    cards:
+      - type: vertical-stack
+        cards:
+        - type: glance
+          entities:
+            - entity: switch.bedroom_a_c
+              tap_action:
+                action: toggle
+              hold_action:
+                action: more-info
+            - entity: light.room_light
+              tap_action:
+                action: toggle
+              hold_action:
+                action: more-info
+            - entity: switch.03200168dc4f2284b597
+              tap_action:
+                action: toggle 
+              hold_action:
+                action: more-info
+            - entity: switch.kindle_charger
+              tap_action:
+                action: toggle
+              hold_action:
+                action: more-info
+
+#          show_header_toggle: true
+#          title: Bedroom
+          style: |
+            ha-card {
+              font-size: 20px;
+            }
+#      - type: horizontal-stack
+#        cards:
+        - type: horizontal-stack
+          cards:
+
+          - entity: media_player.chromecast8564
+#            type: media-control
+            type: custom:mini-media-player
+            tap_action:
+              action: toggle
+            style: |
+              ha-card {
+                font-size: 20px;
+              }
+            info: short
+            artwork: cover
+            hide:
+              mute: true
+              icon: true
+              power_state: false
+#            replace_mute: play_pause
+#            volume_stateless: true
+#        - type: horizontal-stack
+#          cards:
+          - entity: media_player.room_speaker
+#            type: media-control
+            type: custom:mini-media-player
+            style: |
+              ha-card {
+                font-size: 20px;
+              }
+            info: short
+            artwork: cover
+            hide:
+              mute: true
+              icon: true
+              power_state: false
+            #replace_mute: play_pauitl
+            #volume_stateless: true
+  - title: Upcoming
+    panel: true
+    cards:
+      - type: vertical-stack
+        cards:
+        - type: horizontal-stack
+          cards:
+          - type: vertical-stack
+            cards:
+            #- type: horizontal-stack
+            #  cards:
+                - type: glance
+                  style: |
+                    ha-card {
+                      font-size: 20px;
+                    }
+                  entities:
+                    - entity: switch.bedroom_a_c
+                      tap_action:
+                        action: toggle
+                      hold_action:
+                        action: more-info
+                    - entity: light.room_light
+                      tap_action:
+                        action: toggle
+                      hold_action:
+                        action: more-info
+                - type: glance
+                  style: |
+                    ha-card {
+                      font-size: 20px;
+                    }
+                  entities:
+                    - entity: switch.03200168dc4f2284b597
+                      tap_action:
+                        action: toggle 
+                      hold_action:
+                        action: more-info
+                    - entity: switch.kindle_charger
+                      tap_action:
+                        action: toggle
+                      hold_action:
+                        action: more-info
+          - type: vertical-stack
+            cards:    
+              - entity: media_player.chromecast8564
+                type: custom:mini-media-player
+                tap_action:
+                  action: toggle
+                style: |
+                  ha-card {
+                    font-size: 20px;
+                  }
+                info: short
+                artwork: cover
+                hide:
+                  mute: true
+                  icon: true
+                  power_state: false
+              - entity: media_player.room_speaker
+                type: custom:mini-media-player
+                style: |
+                  ha-card {
+                    font-size: 20px;
+                  }
+                info: short
+                artwork: cover
+                hide:
+                  mute: true
+                  icon: true
+                  power_state: false
+            
+          - type: custom:upcoming-media-card
+            entity: sensor.trakt_upcoming_calendar
+            title: Upcoming TV
+            image_style: fanart
+            line1_size: small
+            line1_text: $empty
+            line2_size: large
+            line2_text: $number
+            line3_size: large
+            line3_text: '$day, $time'           
+            line4_size: small
+            line4_text: $empty
+
+              
