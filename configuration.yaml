@@ -58,11 +58,11 @@ sensor:
   - platform: systemmonitor
     resources:
       - type: processor_use
-  - platform: trakt
-    id: !secret trakt_id
-    secret: !secret trakt_secret
-    username: ullasaithalk
-    days: 10
+#  - platform: trakt
+#    id: !secret trakt_id
+#    secret: !secret trakt_secret
+#    username: ullasaithalk
+#    days: 10
       
   #sensor to keep track of days remaining for SSL cert expiry
   - platform: command_line

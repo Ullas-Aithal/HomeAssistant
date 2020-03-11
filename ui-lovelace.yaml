@@ -112,7 +112,7 @@ views:
         - type: horizontal-stack
           cards:
 
-          - entity: media_player.chromecast8564
+          - entity: media_player.bedroom_tv
 #            type: media-control
             type: custom:mini-media-player
             tap_action:
@@ -191,7 +191,7 @@ views:
                         action: more-info
           - type: vertical-stack
             cards:    
-              - entity: media_player.chromecast8564
+              - entity: media_player.bedroom_tv
                 type: custom:mini-media-player
                 tap_action:
                   action: toggle

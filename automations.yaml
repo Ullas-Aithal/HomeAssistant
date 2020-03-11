@@ -6,17 +6,12 @@
     platform: sun
   condition:
   - condition: state
-    entity_id: device_tracker.c0_ee_fb_25_96_9f
+    entity_id: device_tracker.gm1917
     state: home
   action:
   - data:
       entity_id: light.room_light
     service: light.turn_on
-  - data:
-      message: '{{  now().hour }}:{{ now().minute}}:{{now().second}} Lights on'
-      target:
-      - '617157053470867476'
-    service: notify.discord
 - id: '1565483460783'
   alias: Room speaker 40% AC On
   trigger:
@@ -52,7 +47,7 @@
 - id: '1565485013479'
   alias: Lights off when away
   trigger:
-  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+  - entity_id: device_tracker.gm1917
     from: home
     platform: state
     to: not_home
@@ -61,11 +56,6 @@
   - data:
       entity_id: light.room_light
     service: light.turn_off
-  - data:
-      message: '{{  now().hour }}:{{ now().minute}}:{{now().second}} Lights off'
-      target:
-      - '617024318626594831'
-    service: notify.discord
 - id: '1565547129250'
   alias: watch dnd
   trigger:
@@ -93,7 +83,7 @@
 - id: '1567128567269'
   alias: Lights on when home and sunset
   trigger:
-  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+  - entity_id: device_tracker.gm1917
     from: not_home
     platform: state
     to: home
@@ -112,7 +102,7 @@
 - id: '1569030746865'
   alias: Turn on display
   trigger:
-  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+  - entity_id: device_tracker.gm1917
     from: not_home
     platform: state
     to: home
@@ -124,7 +114,7 @@
 - id: '1569370954697'
   alias: Turn off display
   trigger:
-  - entity_id: device_tracker.c0_ee_fb_25_96_9f
+  - entity_id: device_tracker.gm1917
     from: home
     platform: state
     to: not_home
@@ -166,3 +156,56 @@
       channel: !secret slack_channel_id
       message: is {{ trigger.to_state.state }}
     service: script.notify_slack
+- id: '1583886054389'
+  alias: Light auto color temperature
+  description: ''
+  trigger:
+  - entity_id: light.room_light
+    from: 'off'
+    platform: state
+    to: 'on'
+  - at: '18:00'
+    platform: time
+  - at: '18:30'
+    platform: time
+  - at: '19:00'
+    platform: time
+  - at: '19:30'
+    platform: time
+  - at: '20:00'
+    platform: time
+  - at: '20:30'
+    platform: time
+  - at: '21:00'
+    platform: time
+  condition: []
+  action:
+    service_template: >
+      {% if is_state('light.room_light','off') %}
+        light.turn_off
+      {% else %}
+        light.turn_on
+      {%- endif %}
+    data_template:
+      entity_id: light.room_light
+      transition: 4
+      #set color from white to yellow (in temperature) from 6PM to 9PM
+      kelvin: >
+        {% if ((now().hour >= 9) and (now().hour < 18)) %}
+          6000
+        {% elif ((now().hour == 18) and (now().minute < 30)) %}
+          6000
+        {% elif ((now().hour == 18) and (now().minute >= 30)) %}
+          5500
+        {% elif ((now().hour == 19) and (now().minute < 30)) %}
+          5000
+        {% elif ((now().hour == 19) and (now().minute >= 30)) %}
+          4500
+        {% elif ((now().hour == 20) and (now().minute < 30)) %}
+          4000
+        {% elif ((now().hour == 20) and (now().minute >= 30)) %}
+          3500
+        {% else %}
+          2700
+        {%- endif %}
+
