@@ -230,5 +230,101 @@ views:
             line3_text: '$day, $time'           
             line4_size: small
             line4_text: $empty
+  - title: Everything2
+    id: kiosk_mode
+#    badges:
+#     - sun.sun
+    cards:
+      - entity: media_player.bedroom_tv
+        type: custom:mini-media-player
+        tap_action:
+          action: none
+          entity: media_player.bedroom_tv
+          service: media_player.toggle
+
+        style: |
+          ha-card {
+            font-size: 20px;
+          }
+        scale: 3
+        info: scroll
+        artwork: cover
+        hide:
+          mute: false
+          icon: true
+          power_state: false
+          prev: true
+          next: true
+#      - entities:
+#          - switch.living_room_ac
+#        show_header_toggle: true
+#        title: Living Room
+#        type: entities
+      - entities:
+          - switch.bedroom_a_c
+          - light.room_light
+        show_header_toggle: true
+        title: Bedroom
+        type: entities
+      - entity: weather.home
+        type: weather-forecast
+      - entity: sensor.posinc
+        name: Covid Daily Stats - IL
+        type: sensor
+#      - entity: media_player.bedroom_tv
+#        type: media-control
+#      - entity: media_player.living_room_tv
+#        type: media-control
+#      - entity: media_player.room_speaker
+#        type: media-control
+#      - entity: media_player.living_room_speaker
+#        type: media-control
+#      - entities:
+#          - automation.light_on_sunset
+#          - automation.lights_off_when_away
+#          - automation.lights_on_when_home_and_sunset
+#          - automation.turn_on_display
+#          - automation.turn_off_display
+#          - automation.room_speaker_40_ac_on
+#          - automation.room_speaker_60_ac_on
+#        title: Automation
+#        type: entities
+      - entity: sensor.cpu_speed
+        name: Cpu Speed
+        type: sensor
+      - entity: sensor.processor_use
+        name: CPU Usage
+        type: sensor
+      - entity: sensor.pi_hole_dns_queries_today
+        graph: line
+        name: Total Queries
+        type: sensor
+      - entity: sensor.pi_hole_ads_blocked_today
+        graph: line
+        name: Queries Blocked
+        type: sensor
+      - entity: sensor.ssl_cert_expiry
+        name: Let's encrypt expiry
+        type: sensor
+      - entities:
+          - automation.light_on_sunset
+          - automation.lights_off_when_away
+          - automation.lights_on_when_home_and_sunset
+          - automation.turn_on_display
+          - automation.turn_off_display
+          - automation.room_speaker_40_ac_on
+          - automation.room_speaker_60_ac_on
+        title: Automation
+        type: entities
+      - type: entities
+        entities: 
+          - entity: script.display_off
+            name: Turn Off Display
+          - entity: script.display_on
+            name: Turn On Display
+          - entity: script.refresh_page
+            name: Refresh page
+          - entity: script.dashclock_adb_power        
+            name: Dashclock power button
 
               

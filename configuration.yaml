@@ -71,6 +71,24 @@ sensor:
     scan_interval: 10800
     command: !secret sslPath
 
+  - platform: rest
+    name: COVID IL
+    json_attributes:
+      - positiveIncrease
+      - deathIncrease
+    value_template: '{{ value_json.covid_data  }}'
+    resource_template: https://covidtracking.com/api/v1/states/il/{{ now().strftime('%Y%m%d') }}.json
+
+  - platform: template
+    sensors:
+      posinc:
+        friendly_name: 'Covid Daily Stats - IL'
+        value_template: >
+           Cases: {{states.sensor.covid_il.attributes.positiveIncrease}}
+
+           
+           Deaths: {{states.sensor.covid_il.attributes.deathIncrease}}
+
 #Bash scripts that controls display on/off for a monitor connected to this rpi. The monitor is running Chromium in kiosk mode showing my
 #reminders and tasks from Any.do (which needs occasional page refresh)
 script:

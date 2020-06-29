@@ -188,7 +188,7 @@
       {%- endif %}
     data_template:
       entity_id: light.room_light
-      transition: 4
+      transition: 40
       #set color from white to yellow (in temperature) from 6PM to 9PM
       kelvin: >
         {% if ((now().hour >= 9) and (now().hour < 18)) %}
